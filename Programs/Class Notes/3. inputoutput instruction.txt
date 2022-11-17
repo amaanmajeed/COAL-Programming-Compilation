@@ -1,0 +1,110 @@
+input/output instruction in 8086
+
+- I/ O devices are connected through I/O ports
+- each port has a unique address
+- Two types of ports
+- Serial ports: Slower: keyboard, mouse
+- Parallel ports: fast: more hardware connection required: RAM , Hard disk
+
+Basic instructions to communicate the I/o devices are In and OUT.
+
+
+DOS and BIOS = INT interrupt_number
+
+interrupt_number= 00h- FFh  
+total interrupte= 256
+
+Software/ hardware interrupts:
+
+software interrupt: INT 00h , 03h ; math error; divide by zero
+
+Hardware interrupts:
+BIOS: hardware specific
+Keyboard  : INT 16h
+Mouse: INT 13h
+Video RAM mode: Screen:Int 10h
+
+DOS interrupts:
+INT 21h
+INT 22h
+
+
+INT 21h ; exit(), getch(), getche() putch(), gets()
+, puts()
+
+service command number= AH
+
+1: Exit()
+
+mov ah,4ch
+int 21h
+
+2: getche()  ; getcharachter with echo  ; cin>>a;
+
+a db 0
+
+mov ah,1
+int 21h
+mov a,al
+
+AL= stores the ASCII value of pressed character key.
+
+
+3: getch()  ; getcharachter without echo  ; cin>>a;
+
+a db 0
+
+mov ah,8
+int 21h
+mov a,al
+
+AL= stores the ASCII value of pressed character key.
+
+4: Putch() ; cout<<a  
+
+DL contain the ascii valur of display character
+; cout<<'A'
+mov ah,2
+mov dl,'A'
+int 21h
+
+mov ah,2
+mov dl,'+'
+int 21h
+
+mov ah,2
+mov dl,35h
+int 21h
+
+;cin>>a
+;cout<<a
+
+mov ah,1
+int 21h
+mov ah,2
+mov dl,al
+int 21h
+
+5: ;puts()    ; cout<<"hello"
+
+str db "hello $"   ; 7x1=7bytes
+str2 db "class $"
+
+
+mov ah,9
+mov dx, offset str
+int 21h
+
+ mov ah,9
+LEA dx, str2   ; load effective address
+int 21h
+
+
+
+
+
+ 
+
+
+
+

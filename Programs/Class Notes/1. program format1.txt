@@ -1,0 +1,106 @@
+Program structure in 8086
+.exe format
+
+; comments
+single instruction per line
+
+libraries = assembler directives
+
+
+.model memory_model   ; define code and data segmnet reservation
+
+memory_model= tiny, small, medium, comapct, large, huge
+
+Tiny= only one segemnt reserved for data+code <=64kb
+small= two segemnt reserved ; one for data one for code
+medium= only one code segment; more than one data segmnet
+compact= only one data segment; more than one code segmnet
+Large= more than one data segment; more than one code segemnt; array cant exceed from 64kb
+
+huge= more than one data segment; more than one code segemnt; array can be exceed from 64kb
+
+.model tiny
+.model small
+.model large
+
+____________________________________
+
+.model small
+
+data_seg segment 'data'
+; variables, strings , array, constant
+
+a db 12h
+b db 34h
+c db 28h
+d db 00h
+
+
+data_seg ends
+code_segment segment 'code'
+assume CS:code_segment, ds: data_seg, ss: stack_s
+
+Main proc
+; initialize data segemnt into code segment
+;mov ax,@data
+mov ax, data_seg
+mov ds,ax
+
+; Programming instruction
+
+; d =a+b-c
+
+mov al ,a
+add al,b
+sub al,c
+mov d,al
+
+
+Main endp
+
+
+code_segment ends
+stack_s segment  stack
+
+stack_s ends
+end main
+
+____________________________________
+
+; variables, strings , array, constant
+; decleration in c
+data_type varname= value_assign;
+char a='A';
+short b=132;
+int c =6737838;
+; variable decleartion in 8086
+
+datatype= data directive
+8086				c
+DB = data byte= 1byte =8bits =char
+DW = data word= 2byte=16bits= short
+DD= data doubleword= 4byte=32bits=int
+DQ= data qaurd= 8byte=64bits= double
+
+varname datatype valueassign
+a db 'A'
+b db 45h
+c dw 2678h
+d dd 67892526h
+e dw 56h
+
+
+; array decleartion
+
+int a[5]={1,2,3,4,5} 
+
+a db 1,2,3,4,5    ; 5x1= 5 bytes
+b dw 1,2,3,4,5    ; 5x2=10 bytes
+
+; string decleartion
+
+str db "hello$"
+str1 db "hello",'$'
+str2 db "hello" ,24h
+
+str dw "hello$"    ; 12 byte

@@ -1,0 +1,331 @@
+Memory Addressing modes
+- how memory location can be accessed within a program
+-data addressing mode
+-program addressing mode
+-stack addressing mode
+
+Data Addressing mode
+- MOV instruction is used to descibe DAM
+types:
+1- Register Addressing mode
+
+	MOV reg, reg
+
+rule 1: register size should be same
+w-w
+b-b
+
+	MOV AX,SP ;VALID W-W
+	MOV DH,BL ;VALID B-B
+	MOV SI,DL  ; INVALID W-B
+	MOV BX,DI  ; VALID W-W
+	MOV AX,BX  ; VALID W-W
+
+RULE # 2: sEGMENT TO SEGMENT IS NOT ALLOWED 
+
+	MOV SS,DS ; INVALID
+==
+MOV AX,DS
+MOV SS,AX
+
+RULE 3: CANT WRITE ON CS AND IP ; JUST READ THE CS AND IP VALUE  
+
+	MOV CS,AX  ;INVALID
+	MOV IP,BX  ;INVALID
+	MOV AX,CS   ;VALID
+	MOV BX,IP  ; VALID
+
+
+2- Immediate Addressing mode  (HEXADECIMAL OPCODE)
+
+	MOV REG, CONSTANT
+	MOV MEM, CONSTANT
+
+rule 1: OPERANDS sizeS should be same
+w-w
+b-b
+
+	MOV AL, 44 ; AL =2CH
+	MOV AL,44H  ; AL=44H
+	MOV BL,01010101B   ;bl=55H 
+	MOV AX,12334H  ; INVALID SIZE MISMATCH
+	MOV BL,256   ;INVALID
+	MOV AL,'A'    ; AL=41H
+	MOV BX, 'AB'   ; BH=41H ,BL=42H
+	MOV CX,'ABC'   ;INVALID
+MOV DX,0BEF2H; IF MSD= A-F THEN APPEND 0 AT START 
+
+RULE # 2: sEGMENT TO IMMEDIATE IS NOT ALLOWED 	
+	MOV SS,4567H
+==
+MOV AX,4567H
+MOV SS,AX
+	MOV CS,4572H  ; INVALID
+
+
+3- Direct Addressing mode (VARIABLE)
+MOV B/W MEM AND REG
+		MOV REG, MEM
+		MOV MEM,REG
+
+rule 1: OPERANDS sizeS should be same
+w-w
+b-b
+RULE # 2: sEGMENT TO MEM IS NOT ALLOWED 
+RULE # 3 : MEM TO MEM IS NOT ALLOWED 
+
+.MODEL SMALL
+DATA_SEG SEGMENT 'DATA'
+VAR1 DB 12H
+VAR2 DB 78H
+VAR3 DW 4567H
+VAR4 DW 5678H
+
+DATA_SEG ENDS
+CODE_SEG SEGMENT 'CODE'
+ASSUME CS: CODE_SEG , DS: DATA_SEG
+MAIN PROC
+; INITILAIZAE DATA_SEG INTO CODE_SE
+
+MOV AX, DATA_SEG
+MOV DS,AX
+
+MOV VAR1,VAR2   ; INVALID
+
+MOV AL,VAR2
+MOV VAR1,AL
+
+MOV AL,VAR3     ; INVALID
+
+
+
+MAIN ENDP
+CODE_SEG ENDS
+END MAIN
+
+
+
+
+
+4- Indirect Addressing mode
+
+offset addresses of any memory locations are placed in any of the following register
+
+BX, SI, DI = data segment
+BP =stack segemnt
+[] = represnts indirect mode
+
+[bx], [si], [di],[bp] = valid
+
+int a=5;
+
+ca db 5
+
+int ar[5]= {0,0,0,0,0}
+
+arr db 5 dup('0')
+
+arr1 db 5 dup(0)
+arr2 db 5 dup('A')
+arr3 db 5 dup('$')
+arr4 db 5 dup(?)   ; unintialized
+
+arr dw 5 dup('0')   ;5x2=10 bytes
+
+
+
+	- Base Indirect addressing mode
+[BX]   ; PA= DSx10+bx
+[Bp]   ;PA= SSx10+bp
+
+________________________
+int arr[7];
+for(int i=0; i<7;i++)
+{ cin>> arr[i];
+}
+
+
+
+____________________________
+
+
+.MODEL SMALL
+DATA_SEG SEGMENT 'DATA'
+arr db 7 dup(?)
+arr1 dw 6 dup(?)
+DATA_SEG ENDS
+CODE_SEG SEGMENT 'CODE'
+ASSUME CS: CODE_SEG , DS: DATA_SEG
+MAIN PROC
+; INITILAIZAE DATA_SEG INTO CODE_SE
+
+MOV AX, DATA_SEG
+MOV DS,AX
+
+;base indirect addressing mode
+;lea bx,arr
+mov bx,offset arr
+
+; cin>>arr[0]
+
+mov ah,1
+int 21h
+mov [bx],al
+inc bx
+
+; cin>>arr[1]
+
+mov ah,1
+int 21h
+mov [bx],al
+inc bx
+
+; loop structure
+mov bx, offset arr
+mov cx,7
+l1:
+; cin>>arr[i]
+
+mov ah,1
+int 21h
+mov [bx],al
+inc bx
+
+loop l1
+
+
+mov bx, offset arr1
+mov cx,6
+l2:
+; cin>>arr[i]
+
+mov ah,1
+int 21h
+mov ah,0
+mov [bx],ax
+inc bx
+inc bx
+;add bx,2
+
+loop l2
+
+
+
+
+
+; exit
+mov ah,4ch
+int 21h
+
+MAIN ENDP
+CODE_SEG ENDS
+END MAIN
+________________________________________________
+valid and invalid instruction
+
+mov [bx],var  ; invalid m-m
+mov bx,var    ; valid
+mov ax,[bx]    ;valid
+mov [bh],al    ;invalid
+mov cx,[ax]   ;invalid
+mov al,[bx]    ;valid
+mov al,bx    ;invalid
+
+
+
+
+ 	- Index Indirect addressing mode
+[SI]  ; PA=DSx10+si
+[DI]  ;pA=DS x10+di 
+
+.MODEL SMALL
+DATA_SEG SEGMENT 'DATA'
+arr db 7 dup(?)
+arr1 dw 6 dup(?)
+DATA_SEG ENDS
+CODE_SEG SEGMENT 'CODE'
+ASSUME CS: CODE_SEG , DS: DATA_SEG
+MAIN PROC
+; INITILAIZAE DATA_SEG INTO CODE_SE
+
+MOV AX, DATA_SEG
+MOV DS,AX
+
+;base indirect addressing mode
+;lea bx,arr
+mov bx,offset arr
+
+; cin>>arr[0]
+
+mov ah,1
+int 21h
+mov [bx],al
+inc bx
+
+; cin>>arr[1]
+
+mov ah,1
+int 21h
+mov [bx],al
+inc bx
+
+; loop structure
+mov bx, offset arr
+mov cx,7
+l1:
+; cin>>arr[i]
+
+mov ah,1
+int 21h
+mov [bx],al
+inc bx
+
+loop l1
+
+
+; goto(x,y)
+mov ah,2
+mov dh,0ch
+mov dl,27h
+int 10h
+
+; int arr[7];
+;for(int i=0; i<7;i++)
+;{ cout<< arr[i];
+;}
+
+; loop structure  
+;index indirect addressing 
+mov si, offset arr
+mov cx,7
+l2:
+; cout<<arr[i]
+
+mov ah,2
+mov dl, [si]
+int 21h
+
+inc SI
+
+loop l1
+
+
+
+; exit
+mov ah,4ch
+int 21h
+
+MAIN ENDP
+CODE_SEG ENDS
+END MAIN
+
+
+
+
+
+
+	- Base+index Indirect addressing mode
+5- Relative Addressing mode
+	- Base Relative addressing mode
+ 	- Index Relative addressing mode
+	- Base+index Relativez addressing mode

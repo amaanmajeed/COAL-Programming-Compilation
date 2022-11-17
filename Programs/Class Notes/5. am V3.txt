@@ -1,0 +1,117 @@
+Memory Addressing modes
+- how memory location can be accessed within a program
+-data addressing mode
+-program addressing mode
+-stack addressing mode
+
+Data Addressing mode
+- MOV instruction is used to descibe DAM
+types:
+1- Register Addressing mode
+
+	MOV reg, reg
+
+rule 1: register size should be same
+w-w
+b-b
+
+	MOV AX,SP ;VALID W-W
+	MOV DH,BL ;VALID B-B
+	MOV SI,DL  ; INVALID W-B
+	MOV BX,DI  ; VALID W-W
+	MOV AX,BX  ; VALID W-W
+
+RULE # 2: sEGMENT TO SEGMENT IS NOT ALLOWED 
+
+	MOV SS,DS ; INVALID
+==
+MOV AX,DS
+MOV SS,AX
+
+RULE 3: CANT WRITE ON CS AND IP ; JUST READ THE CS AND IP VALUE  
+
+	MOV CS,AX  ;INVALID
+	MOV IP,BX  ;INVALID
+	MOV AX,CS   ;VALID
+	MOV BX,IP  ; VALID
+
+
+2- Immediate Addressing mode  (HEXADECIMAL OPCODE)
+
+	MOV REG, CONSTANT
+	MOV MEM, CONSTANT
+
+rule 1: OPERANDS sizeS should be same
+w-w
+b-b
+
+	MOV AL, 44 ; AL =2CH
+	MOV AL,44H  ; AL=44H
+	MOV BL,01010101B   ;bl=55H 
+	MOV AX,12334H  ; INVALID SIZE MISMATCH
+	MOV BL,256   ;INVALID
+	MOV AL,'A'    ; AL=41H
+	MOV BX, 'AB'   ; BH=41H ,BL=42H
+	MOV CX,'ABC'   ;INVALID
+MOV DX,0BEF2H; IF MSD= A-F THEN APPEND 0 AT START 
+
+RULE # 2: sEGMENT TO IMMEDIATE IS NOT ALLOWED 	
+	MOV SS,4567H
+==
+MOV AX,4567H
+MOV SS,AX
+	MOV CS,4572H  ; INVALID
+
+
+3- Direct Addressing mode (VARIABLE)
+MOV B/W MEM AND REG
+		MOV REG, MEM
+		MOV MEM,REG
+
+rule 1: OPERANDS sizeS should be same
+w-w
+b-b
+RULE # 2: sEGMENT TO MEM IS NOT ALLOWED 
+RULE # 3 : MEM TO MEM IS NOT ALLOWED 
+
+.MODEL SMALL
+DATA_SEG SEGMENT 'DATA'
+VAR1 DB 12H
+VAR2 DB 78H
+VAR3 DW 4567H
+VAR4 DW 5678H
+
+DATA_SEG ENDS
+CODE_SEG SEGMENT 'CODE'
+ASSUME CS: CODE_SEG , DS: DATA_SEG
+MAIN PROC
+; INITILAIZAE DATA_SEG INTO CODE_SE
+
+MOV AX, DATA_SEG
+MOV DS,AX
+
+MOV VAR1,VAR2   ; INVALID
+
+MOV AL,VAR2
+MOV VAR1,AL
+
+MOV AL,VAR3     ; INVALID
+
+
+
+MAIN ENDP
+CODE_SEG ENDS
+END MAIN
+
+
+
+
+
+4- Indirect Addressing mode
+	- Base Indirect addressing mode
+ 	- Index Indirect addressing mode
+	- Base+index Indirect addressing mode
+5- Relative Addressing mode
+	- Base Relative addressing mode
+ 	- Index Relative addressing mode
+	- Base+index Relativez addressing mode

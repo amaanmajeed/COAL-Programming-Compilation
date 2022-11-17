@@ -1,0 +1,129 @@
+Input/output instructions in 8086
+
+-I/O devices are connected though I/O Ports
+
+-serial port: Slower : Keyboard, Mouse
+-parallel Port: fast: extra connections required : RAM, Hard disK 
+
+DOS/ BIOS : INT interrupt_number
+
+interrupt number=00- FFH
+Hardware/Software interrupt
+
+software inteerupt = 00 , 03 = divide by zero
+
+Hardware Interrupts :
+BIOS 
+INT 16h    ; purely keyboard
+INT 13h     ; mouse
+int 10h     ; video RAM mode
+
+DOS : 
+int 21h  ; exit(), gets(),puts(); getch(); putch()
+
+int 22h
+_____________________________________
+
+DOS : 
+int 21h  ; exit(), gets(),puts(); getch(); putch()
+
+service command : AH
+
+;exit()
+
+mov ah,4ch
+int 21h
+
+;getche() ; get character with echo    ;cin>>a
+a db 0
+
+mov ah,1
+int 21h
+mov a, al
+;AL= store the ASCII value of pressed character
+
+______________________________
+;getch() ; get character without echo    ;cin>>a
+a db 0
+
+mov ah,8
+int 21h
+mov a, al
+;AL= store the ASCII value of pressed character
+
+; putch()    ; cout<<a
+;dl register contain the ascii value of display register
+
+mov ah,2
+mov dl,'A'
+int 21h 
+
+
+mov ah,1
+int 21h
+mov ah,2
+mov dl,al
+int 21h 
+
+
+mov ah,2
+mov dl,'A'
+int 21h 
+
+; puts() ; cout<<"hello"
+
+str db "hello $"    ; 7 X1 = byte
+str2 db "class$"
+mov ah,9
+mov dx, offset str
+int 21h
+
+mov ah, 9
+lea dx ,str2 ; load effective address
+int 21h
+
+_____________________________
+;clearscreen()
+mov ah, 6   ; scroll up
+; mov ah,7  ; scroll down 
+
+
+; goto(x,y)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

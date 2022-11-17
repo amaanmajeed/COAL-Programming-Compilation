@@ -1,0 +1,137 @@
+INT 10h  = video RAM mode = screen interrupt= Pixel+text
+; clearscreen ()
+
+mov ah,6   ; scrollup
+mov ah,7   ; scroll down
+mov al,0   ; entire screen  ; number of lines
+mov bh, 53h   ; screen attributes
+mov cx,00h       ; screen starting point
+mov dx, 184fh      ; screen ending point 
+INT 10h
+ mov bx,0
+
+
+; gotoxy()
+
+mov ah, 2
+mov dh,0CH      ; dh=row
+mov dl,27h      ; dl= col
+INT 10h
+
+
+; Loop instructions
+
+CX= number of iterations
+
+for(cx=10; cx==0; cx--)
+=====
+mov cx,10
+loop_body:
+
+mov ah,2
+mov dl,'A'
+int 21h
+
+LOOP loop_body
+
+; loop backend operation
+
+if cx==0  then loop terminate
+else cx!=0 then decremnet Cx(CX--) and call loop body
+
+_____________________________
+
+.model small
+
+data_seg segment 'data'
+          a db 0
+    
+    data_seg ends
+code_seg segment 'code'
+assume cs: code_seg, ds: data_seg
+
+Main proc
+        
+     ; initalization of data_seg into code_seg
+     
+     mov ax, data_seg
+     mov ds,ax
+     
+     
+    
+    
+    
+     mov ah,6   ; scrollup
+mov ah,7   ; scroll down
+mov al,0   ; entire screen  ; number of lines
+mov bh, 70h   ; screen attributes
+mov cx,00h       ; screen starting point
+mov dx, 184fh      ; screen ending point 
+INT 10h
+ mov bx,0
+     
+   ; character input    cin>>a
+   
+   mov ah,1
+   int 21h 
+   mov a, al
+    
+      ; gotoxy()   ; screen center
+      
+      mov ah,2
+      mov dh, 0Ch
+      mov dl,27h
+      int 10h
+      
+      
+      ; charcter output cout<<a
+      
+      mov ah,2
+      mov dl,a
+      int 21h
+      
+             
+      ; loop body
+      
+      
+      mov cx,5
+      
+      
+      l1:
+      mov ah,2
+      mov dl,a
+      int 21h
+      
+      
+      
+      loop l1       
+             
+             
+      ; exit 
+      
+      mov ah,4ch
+      int 21h
+    
+    
+    Main endp 
+    
+code_seg ends    
+
+
+
+end main
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

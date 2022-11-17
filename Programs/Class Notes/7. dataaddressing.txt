@@ -1,0 +1,554 @@
+Memory addressing modes
+A memory addressing modes refer how a memory location can access in a program
+1-Data Addressing Mode
+ -Mov instruction is used to describe the data adressing mode
+ - assignmnet/ data transfer 
+-size should be same
+-byte/byte
+-word / word
+- memory - memory is not allowed
+- register/ register
+-register/ memory
+-register / constant
+
+Types of data addressing modes
+-Register addressing mode
+	-register to register
+		Mov dest,src
+		Mov <Reg>,<reg>
+
+Mov ax, BX  =valid size same- 16bit-16bit
+mov cl, dh   = valid size same-8-8
+mov ax, bl   = invalid  = size mismatch 16bit-8bit
+mov si, Di   =valid = size same- 16bit-16 bit 
+mov sp, ax   = valid
+mov bp, Si    =valid
+mov cl, Sp    =invalid   size mismatch 8bit-16bit
+mov cx, DI    = valid
+3 rule- segment to segment is not allowed
+
+mov ss, DS    =invalid
+mov ss, ax     = valid
+mov ds,ax      =valid
+mov ax, cs      = valid - read
+mov ax,IP        = valid  - read 
+4 rule - code segment +ip cannot be the destination registar 
+mov cs, ax     = invalid - write
+mov Ip,AX      =invalid  - write
+
+
+
+- immediate addressing mode - save hexadecimal value
+		
+		MOV reg, constant_value
+		Mov memory, constant_value
+
+
+mov bl,44   =valid = copies 44 decimal value - (2ch) into BL
+mov bl,44h   =valid = 44h into bl
+Mov Si,0     = Si=0000h
+mov Ch,100    = Ch=64h  
+mov Al,256     =invalid, size 
+mov Bl,'A'	= Bl= 41h .. Ascii value of A	
+mov AX, 'AB'     = AX  = Ah = 41h  ,Al= 42h 
+mov cl,10001000b   =  prefix b should mention with binary number
+iimmediate value cant move to segemnt register
+mov SS,1224h  =     invalid
+
+- perform segment register operation though general purpose register
+mov ax,1224h
+mov ss,ax
+
+Mov al, 1Fh 
+Mov bl, 0Efh  ;msd = A- F must append zero before it
+
+
+- direct addresing mode
+Mov between a memory location and register
+ 	MOV mem ,  reg
+	mov reg, mem
+
+.data
+
+var1 db 10h
+var2 dw 0AABCH
+var3 dw   ?
+
+.code
+
+; data segmnet inizaliation
+mov ax, @data
+mov ds,ax
+
+mov Al , var1
+mov dx,var2
+mov var3,dx
+
+mov var3,var2   = invalid - memory to memory 
+mov ds, data_seg  = invalid - memory location address cant move into segment register
+mov es, data  = invalid
+mov ss, data = invalid
+
+mov ax, data_seg
+mov ds,ax
+mov es,ax 
+
+
+
+- indirect addressing mode
+
+offset addressof any memory location held in any of the following register:
+BX, SI, DI   for Data segment
+BP    for stack segment
+
+[] - represent the indirect mode
+
+	-base indiresct adm   DS:[BX], SS:[BP]
+
+data_seg
+
+data1 dw 34f3h
+data2  db 67h
+
+
+
+
+code_seg 
+
+mov ax, data_seg
+mov ds,ax
+
+; direct 
+mov AX, data1
+
+; indirect
+mov BX, offset data1
+;or
+LEA BX, data1
+mov AX, [BX]
+
+
+
+mov BX, offset data2
+mov Al,[BX] = valid mem byte- register byte
+
+
+mov al,bx = invalid
+
+
+_________________________________________
+int var= 5
+var db 5
+
+int array [5]={0,0,0,0,0}
+
+
+array db 5 dup('0') 
+
+arr1 dw 5 dup ('$')
+
+
+int array2 [5]={1,2,,3,4,5}
+
+array2 db 1,2,3,4,5
+
+array3 dw 1,2,3,,4,5
+
+Str1 db "hello $"
+Str2 dw " world $"
+
+
+_____________________________________________
+
+int array[5];
+\\ take array input
+
+for (int i =0; i<5;i++)
+{
+ cin >>array[i];
+}
+
+; base indirect Addressing mode
+
+data_segment 
+
+arr1 db 5 dup(0)
+var db 0
+
+code_seg
+
+main proc
+
+; initialization of data segemnt into code segment
+
+mov ax, data_seg
+mov ds,ax
+
+
+; character by character input
+
+mov ah, 1
+int 21h
+mov var,al
+
+; base indirect addressing mode
+
+mov bx,offset arr1
+mov [bx],al
+
+inc bx
+
+mov ah, 1
+int 21h
+mov [bx],al
+
+inc bx
+
+mov ah, 1
+int 21h
+mov [bx],al
+
+
+
+_____________________________
+; loop decleration in 8086
+
+for (cx=5; cx>=0; cx--)
+
+
+Main proc
+; initialize cx value with count
+
+; base indirect addressing mode
+
+mov bx,offset arr1
+mov cx,5
+
+label_1:
+
+; instruction
+
+mov ah, 1
+int 21h
+mov [bx],al
+
+inc bx
+
+
+
+loop label_1
+
+; condition check 
+
+if cx==0 loop terminate
+else(cx!=0 ; cx--)
+
+
+
+
+__________________________
+
+data_seg 
+arr dw 6 dup(?)
+
+
+code_seg
+MAin proc
+
+mov bx,offset arr1
+mov cx,6
+
+label_1:
+
+; instruction
+
+mov ah, 1
+int 21h
+mov [bx],AX
+
+mov  [bx],al ; invalid  size mismatch
+
+inc bx
+inc bx
+; add bx,2
+
+
+loop label_1
+
+
+
+main endp
+
+_______________________________________
+
+	- index indirect a.m     [Si],[di]
+data_seg
+string db "hello$"
+
+code_seg
+main proc
+mov ax, data_seg
+mov ds,ax
+
+; string print through service command
+mov ah,9
+mov dx, offset string 
+int 21h
+
+; string print through index inderct addressing mode
+;by character print
+
+
+mov si,offset string
+mov cx,06
+
+l1:
+mov ah,2
+mov dl,[si]
+; operation
+sub dl,20h
+int 21h 
+inc si
+
+loop l1
+
+
+main enp
+
+______________________________
+
+data_seg
+arr dw 5 dup ('$')
+
+code_seg
+main proc
+
+mov di, offset arr
+mov cx,04
+
+l2:
+; getche()
+mov ah,1
+int 21h
+mov ah,0
+mov [di],ax
+
+add di,2
+
+loop l2
+
+main endp
+
+
+	- base+index indirect a.m  [bx+si], [bx+di]
+bx = contain offset address
+si,di= index value
+
+data_seg
+string1  db "Class $"
+
+code_seg 
+
+main proc
+
+mov bx,offset string1
+mov si,0
+mov cx,7
+
+l3
+
+; print string using base +index adm
+
+mov ah,2
+mov dl,[BX+si]
+int 21h
+inc si
+
+loop l3
+
+
+;reverse order print
+
+mov bx, offset address
+mov di,6
+mov cx,6
+
+l4:
+mov ah,2
+mov dl,[bx+di]
+dec di
+
+loop l4
+
+
+main endp
+
+______________________
+invalid
+
+[bx],[si],[di]
+mov [Ax],bx ;only use bx,si and di within barckets, cant use other registers  
+mov [Si], var ; memory -memory is not allowed 
+mov [bx+bp],ax  ; second should be index  ; valid form=[bx+si],[bp+di],[bx+di],[bp+di] 
+mov [Si+di],ax   ; one should be base
+mov [bx+si],[di] ;memeory -memory
+
+
+
+- Relative addressing mode
+	- base relative addressing mode   arr[bx]
+
+
+for (i=0; i<5;i++)
+{
+cin>>arr[i]
+}
+
+
+
+arr1  db 5 dup ('$')
+
+main proc
+; get an array using base relative addrsing mode
+
+mov cx,5
+mov bx,0
+
+l5:
+
+mov ah,1
+int 21h
+mov arr[bx],al
+inc bx
+
+
+
+loop l5
+
+
+main endp
+
+
+
+	-index relative adressing mode
+
+
+arr1  db 5 dup ('$')
+
+main proc
+; get an array using index relative addrsing mode
+
+mov cx,5
+mov si,0
+
+l5:
+
+mov ah,1
+int 21h
+mov arr[si],al
+inc si
+
+loop l5
+
+
+;gets()
+; array get through service command 
+
+arr1 db 8 dup('$') 
+
+mov ah, 10
+mov ah,0AH
+mov dx, offset arr1
+mov arr1 ,5     ; array size 
+int 21h
+
+
+; array print
+
+mov si,2
+mov cl,arr1[1]
+mov ch,0
+
+l2:
+
+mov ah,2
+mov dl, arr[si]
+int 21h
+inc si
+
+loop l2
+
+
+
+
+	-base+index relative ad.m    array[bx+si], array[bx+di]
+
+2- D array
+Structures
+bx = handle row
+si,di =handle column
+
+2-d array decleration
+
+
+_________________________
+int arra[row][col]
+
+int arr[2][3]
+
+
+for (int row=0; row<2; row++)
+{
+for (int col=0;col<3;col++)
+{
+   cin>>arr[row][col]
+}
+__________________________
+
+data_seg
+
+arr db 2 dup( 3 dup('$')  )
+row db 2    ;outer loop
+col db 3    ;inner loop
+
+
+cod_seg
+
+main proc
+mov ax,data_seg
+mov ds,ax 
+
+
+mov bx,0
+mov ch,0
+
+mov cl,2
+l1:
+mov row,cl
+
+mov si,0
+mov cl,col    ; inner loop
+
+l2:
+mov ah,1
+int 21h
+mov arr[bx+si],al 
+inc si
+loop l2
+mov cl,row
+inc bx
+loop l1
+
+
+main endp
+ 
+
+
+
+
+
+
+
+
+2-program Addressing mode
+3-Stack addressing mode 
